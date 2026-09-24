@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wyjdź z autopilota</title>
+<meta name="description" content="Nie kolejny poradnik o pieniądzach. Coś ważniejszego. Minuta i jesteś na liście.">
+<meta name="theme-color" content="#010207">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://www.jncxk.pl/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.jncxk.pl/">
+<meta property="og:image" content="https://www.jncxk.pl/og.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:locale" content="pl_PL">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23010207'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%234f7cff'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="og-icon.png">
+<meta property="og:title" content="Coś się zmienia">
+<meta property="og:description" content="Żyjesz, czy tylko przeżywasz kolejny dzień?">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600&family=JetBrains+Mono:wght@500&family=Instrument+Serif:ital@0;1&display=swap&subset=latin-ext" rel="stylesheet">
+<!-- ANALITYKA: tu wklej skrypt z Umami (cloud.umami.is -> Add website -> Tracking code), np.:
+<script defer src="https://cloud.umami.is/script.js" data-website-id="TWOJE-ID"></script> -->
+<style>
+:root{
+  --bg:#010207;
+  --ink:#eef2ff;
+  --mute:#8a93b3;
+  --dim:#646c8e;
+  --line:rgba(140,160,255,.14);
+  --blue:#4f7cff;
+  --blue-2:#8fb0ff;
+  --glass:rgba(8,12,30,.82);
+  --glass-h:rgba(14,22,54,.9);
+  --r:18px;
+  --ease:cubic-bezier(.22,.8,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--ink);overflow:hidden}
+body{font-family:"Inter Tight",system-ui,-apple-system,"Segoe UI",sans-serif;font-weight:400;-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+em,.serif{font-family:"Instrument Serif",Georgia,serif;font-style:italic;font-weight:400;letter-spacing:0}
+
+/* ---------- tło ---------- */
+#stars,#sky{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+#stars{z-index:1;pointer-events:none}
+.veil{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(1,2,7,.9) 0%,rgba(1,2,7,.65) 50%,rgba(1,2,7,.2) 100%)}
+.glow{position:fixed;z-index:0;pointer-events:none;border-radius:50%;filter:blur(90px);opacity:.28}
+.glow.a{width:60vmax;height:60vmax;left:-20vmax;top:-25vmax;background:radial-gradient(circle,#0b1c52 0%,transparent 65%)}
+.glow.b{width:50vmax;height:50vmax;right:-20vmax;bottom:-25vmax;background:radial-gradient(circle,#081440 0%,transparent 65%)}
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* ---------- ramka ---------- */
+.top{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;justify-content:space-between;padding:calc(18px + env(safe-area-inset-top)) 22px 0}
+.mark{font-size:13px;letter-spacing:.02em;color:var(--mute);display:flex;align-items:center;gap:8px}
+.mark i{width:7px;height:7px;border-radius:50%;background:var(--blue);box-shadow:0 0 12px var(--blue);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
+.back{background:none;border:0;color:var(--mute);font:inherit;font-size:13px;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .4s;padding:6px 0}
+.back.on{opacity:1;pointer-events:auto}
+.back:hover{color:var(--ink)}
+.bar{position:fixed;left:22px;right:22px;top:calc(52px + env(safe-area-inset-top));z-index:5;height:2px;background:var(--line);border-radius:2px;overflow:hidden}
+.bar b{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--blue-2));box-shadow:0 0 10px var(--blue);transition:width .7s var(--ease)}
+
+/* ---------- sceny ---------- */
+#stage{position:relative;z-index:2;height:100%;height:100dvh}
+.scene{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+  padding:calc(84px + env(safe-area-inset-top)) 24px calc(36px + env(safe-area-inset-bottom));
+  max-width:640px;margin:0 auto;opacity:0;visibility:hidden;transform:translateY(24px);
+  transition:opacity .7s var(--ease),transform .9s var(--ease),visibility 0s linear .9s}
+.scene.on{opacity:1;visibility:visible;transform:none;transition:opacity .8s var(--ease) .15s,transform 1s var(--ease) .15s,visibility 0s}
+.scene.out{transform:translateY(-24px)}
+.scene.back-out{transform:translateY(24px)}
+
+.eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--blue-2);opacity:.8;margin-bottom:22px}
+h1,h2,.q-title{text-wrap:balance}
+h1,h2{font-weight:500;letter-spacing:-.035em;line-height:1.04}
+h1{font-size:clamp(38px,9.5vw,68px)}
+h2{font-size:clamp(30px,7.2vw,50px)}
+h1 em,h2 em{color:var(--blue-2);font-size:1.08em}
+.lead{font-size:clamp(17px,4.3vw,20px);line-height:1.55;color:var(--mute);margin-top:22px;max-width:30em}
+.lead strong{color:var(--ink);font-weight:500}
+
+/* ujawnianie tekstu (tylko elementy nieinteraktywne) */
+.rv{opacity:0;transform:translateY(14px);filter:blur(6px);transition:opacity .9s var(--ease),transform 1s var(--ease),filter .9s var(--ease)}
+.scene.on .rv{opacity:1;transform:none;filter:none}
+.lines p{font-size:clamp(19px,4.8vw,24px);line-height:1.45;color:var(--mute);margin:0 0 14px;letter-spacing:-.015em}
+.lines p.hl{color:var(--ink)}
+.lines p.big{font-size:clamp(24px,6vw,32px);color:var(--ink);font-weight:500;letter-spacing:-.03em}
+
+/* ---------- przyciski ---------- */
+.cta{position:relative;isolation:isolate;margin-top:40px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.btn{text-decoration:none;position:relative;display:inline-flex;align-items:center;gap:12px;border:0;cursor:pointer;
+  font:inherit;font-size:16px;font-weight:500;color:#fff;padding:17px 26px;border-radius:999px;
+  background:linear-gradient(180deg,#5b86ff,#3159e0);box-shadow:0 10px 40px -10px rgba(79,124,255,.7),inset 0 1px 0 rgba(255,255,255,.25);
+  transition:transform .25s var(--ease),box-shadow .3s,opacity .3s}
+@media (hover:hover){.btn:hover{transform:translateY(-2px);box-shadow:0 16px 50px -10px rgba(79,124,255,.85),inset 0 1px 0 rgba(255,255,255,.25)}.btn:hover svg{transform:translateX(4px)}}
+.btn:active{transform:scale(.97)}
+.btn svg{transition:transform .3s var(--ease)}
+.btn[disabled]{opacity:.3;pointer-events:none;box-shadow:none}
+.hint{font-size:13px;color:var(--dim)}
+
+/* CTA - spokojne pulsowanie */
+.btn.shine{padding:19px 30px;font-size:17px}
+.btn.shine::before{content:"";position:absolute;inset:-6px -10px;border-radius:999px;z-index:-1;
+  background:radial-gradient(closest-side,rgba(79,124,255,.7),rgba(79,124,255,0));filter:blur(14px);
+  animation:halo 3.6s ease-in-out infinite;pointer-events:none}
+.btn.shine .ring{display:none}
+@keyframes halo{0%,100%{opacity:.25;transform:scale(.97)}50%{opacity:.6;transform:scale(1.05)}}
+@keyframes haloSoft{0%,100%{opacity:.22}50%{opacity:.42}}
+
+
+
+/* ---------- ankieta ---------- */
+.q-num{font-size:13px;color:var(--dim);margin-bottom:12px;font-variant-numeric:tabular-nums;display:flex;gap:10px;align-items:center}
+.q-num span{color:var(--blue-2);opacity:.75}
+.q-title{font-size:clamp(25px,6.2vw,38px);font-weight:500;letter-spacing:-.035em;line-height:1.1}
+.q-sub{color:var(--mute);margin-top:10px;font-size:15px}
+.opts{display:grid;gap:9px;margin-top:24px}
+
+/* animacja wejścia opcji przez keyframes - nie blokuje hovera */
+@keyframes optIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.scene.on .opt,.scene.on .opt-other{animation:optIn .7s var(--ease) backwards}
+.scene.on .opts>:nth-child(1){animation-delay:.22s}.scene.on .opts>:nth-child(2){animation-delay:.28s}
+.scene.on .opts>:nth-child(3){animation-delay:.34s}.scene.on .opts>:nth-child(4){animation-delay:.40s}
+.scene.on .opts>:nth-child(5){animation-delay:.46s}
+
+.opt{position:relative;text-align:left;font:inherit;font-size:16px;line-height:1.35;color:var(--ink);cursor:pointer;
+  padding:15px 18px 15px 50px;border-radius:var(--r);border:1px solid var(--line);background:var(--glass);
+  transition:border-color .18s ease,background-color .18s ease,box-shadow .18s ease,transform .15s ease}
+.opt::before{content:"";position:absolute;left:16px;top:50%;margin-top:-11px;
+  width:22px;height:22px;border-radius:7px;border:1.5px solid rgba(140,160,255,.3);transition:background-color .18s,border-color .18s}
+.opt::after{content:"";position:absolute;left:23px;top:50%;margin-top:-6px;width:6px;height:10px;border:solid #fff;border-width:0 2px 2px 0;
+  transform:rotate(45deg) scale(0);transition:transform .2s var(--ease)}
+@media (hover:hover){.opt:hover{border-color:rgba(143,176,255,.45);background-color:var(--glass-h)}}
+.opt:active{transform:scale(.985)}
+.opt.sel{border-color:var(--blue);background-color:rgba(33,58,145,.6);box-shadow:0 0 0 1px var(--blue) inset}
+.opt.sel::before{background:var(--blue);border-color:var(--blue)}
+.opt.sel::after{transform:rotate(45deg) scale(1)}
+
+.opt-other{position:relative}
+.opt-other input{width:100%;font:inherit;font-size:16px;color:var(--ink);background:transparent;
+  border:1px dashed rgba(140,160,255,.28);border-radius:var(--r);padding:15px 18px 15px 50px;outline:none;
+  transition:border-color .18s,background-color .18s}
+.opt-other::before{content:"+";position:absolute;left:16px;top:50%;margin-top:-11px;width:22px;height:22px;display:grid;place-items:center;
+  color:var(--blue-2);font-size:17px;pointer-events:none}
+.opt-other input::placeholder{color:var(--dim)}
+.opt-other input:focus,.opt-other.filled input{border-style:solid;border-color:var(--blue);background:rgba(33,58,145,.35)}
+
+.q-foot{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:20px}
+.q-foot .hint{flex:1}
+.q-foot .btn{padding:15px 22px}
+
+/* skala 1–10 */
+.scale{margin-top:30px}
+.scale-row{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}
+.scale button{font:inherit;font-size:15px;color:var(--mute);aspect-ratio:1/1.25;border-radius:12px;border:1px solid var(--line);
+  background:var(--glass);cursor:pointer;transition:background-color .15s,border-color .15s,color .15s;font-variant-numeric:tabular-nums}
+@media (hover:hover){.scale button:hover{color:var(--ink);border-color:rgba(143,176,255,.45)}}
+.scale button.lit{background:rgba(79,124,255,.2);border-color:rgba(79,124,255,.5);color:var(--ink)}
+.scale button.sel{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 8px 30px -8px var(--blue)}
+.scale-lab{display:flex;justify-content:space-between;margin-top:10px;font-size:12.5px;color:var(--dim)}
+
+/* input IG */
+.field{margin-top:30px;position:relative}
+.field .at{position:absolute;left:20px;top:50%;transform:translateY(-50%);color:var(--blue-2);font-size:20px;pointer-events:none}
+.field input,.field textarea{width:100%;font:inherit;font-size:19px;color:var(--ink);background:var(--glass);
+  border:1px solid var(--line);border-radius:var(--r);padding:19px 20px 19px 46px;outline:none;transition:border-color .2s,box-shadow .2s}
+.field textarea{padding:16px 20px;font-size:16px;resize:none;height:92px;line-height:1.45}
+.field input:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(79,124,255,.15)}
+.field input::placeholder,.field textarea::placeholder{color:var(--dim)}
+.err{color:#ff8f9e;font-size:13.5px;margin-top:10px;min-height:18px}
+.small{font-size:13px;color:var(--dim);margin-top:16px;line-height:1.5}
+.consent{display:flex;gap:12px;align-items:flex-start;margin-top:16px;font-size:13px;line-height:1.5;color:var(--mute);cursor:pointer}
+.consent input{appearance:none;-webkit-appearance:none;flex:none;width:20px;height:20px;margin-top:1px;border-radius:6px;border:1.5px solid rgba(140,160,255,.35);background:transparent;cursor:pointer;display:grid;place-items:center;transition:background-color .15s,border-color .15s}
+.consent input:checked{background:var(--blue);border-color:var(--blue)}
+.consent input:checked::after{content:"";width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.hp{position:absolute;left:-9999px;opacity:0;height:0;width:0}
+
+/* wynik */
+.result-card{margin-top:26px;padding:24px;border-radius:22px;border:1px solid var(--line);
+  background:linear-gradient(160deg,rgba(40,70,170,.3),rgba(10,16,40,.75))}
+.result-card .tag{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--blue-2)}
+.result-card p{margin-top:12px;font-size:17px;line-height:1.6;color:#c9d2ee}
+.sign{margin-top:24px;font-size:28px;color:var(--blue-2)}
+
+.foot{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom));left:0;right:0;z-index:3;text-align:center;
+  font-size:11.5px;color:var(--dim);padding:0 20px;transition:opacity .4s}
+.foot a{color:var(--mute);text-decoration:none;border-bottom:1px solid var(--line)}
+
+.spin{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;animation:sp .8s linear infinite;display:none}
+.btn.load .spin{display:block}.btn.load svg{display:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+@media (max-height:760px){.scene{justify-content:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch}.cta{margin-top:28px}}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation:none!important}}
+/* ---------- telefon: spokojniejsze CTA, większe napisy ---------- */
+@media (max-width:600px){
+  .cta{flex-direction:column;align-items:stretch;gap:12px;margin-top:32px}
+  .cta .btn{justify-content:center;width:100%}
+  .cta .hint{text-align:center}
+  .btn,.btn.shine{padding:17px 24px;font-size:17px}
+  .btn.shine::before{inset:-4px -4px;filter:blur(12px);animation:haloSoft 4.5s ease-in-out infinite;transform:none}
+  .btn:active{transform:scale(.98)}
+  .hint{font-size:14px}
+  .q-sub{font-size:16px;line-height:1.45}
+  .small,.consent{font-size:14px}
+  .opt,.opt-other input{font-size:16.5px}
+  .q-num{font-size:14px}
+  .scale-lab{font-size:13.5px}
+  .q-foot{flex-direction:row}
+  .q-foot .btn{width:auto;padding:15px 22px}
+}
+body.foot-on .scene{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+@media (max-height:620px){.foot{font-size:10.5px}}
+</style>
+</head>
+<body>
+
+<noscript><p style="position:relative;z-index:9;padding:24px;color:#eef2ff">Ta strona potrzebuje włączonego JavaScriptu.</p></noscript>
+<canvas id="sky" aria-hidden="true"></canvas>
+<div class="veil"></div>
+<canvas id="stars" aria-hidden="true"></canvas>
+<div class="grain"></div>
+
+<header class="top">
+  <div class="mark"><i></i>@janecxek</div>
+  <button class="back" id="back" type="button">← wstecz</button>
+</header>
+<div class="bar"><b id="prog"></b></div>
+
+<main id="stage">
+
+  <!-- HOOK -->
+  <section class="scene">
+    <div class="eyebrow rv">Wyjdź z autopilota</div>
+    <h1 class="rv" style="transition-delay:.1s">Żyjesz, czy tylko <em>przeżywasz</em> kolejny dzień?</h1>
+    <p class="lead rv" style="transition-delay:.35s">Każdy sprzedaje ci wiedzę, jak zarabiać.<br><strong>Ja chcę pokazać ci coś ważniejszego.</strong></p>
+    <div class="cta rv" style="transition-delay:.55s">
+      <button class="btn shine next" type="button"><span class="ring"></span><span class="ring r2"></span>Pokaż mi <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <span class="hint">zajmie ci to minutę</span>
+    </div>
+  </section>
+
+  <!-- KIM JESTEM -->
+  <section class="scene">
+    <div class="lines">
+      <p class="rv" style="transition-delay:.1s">Nie jestem psychologiem.</p>
+      <p class="rv" style="transition-delay:.35s">Nie jestem guru.</p>
+      <p class="rv hl" style="transition-delay:.6s">Jestem zwykłym chłopakiem, który przechodził pewnie przez to samo co ty.</p>
+      <p class="rv" style="transition-delay:.85s">Może mniej. Może więcej.</p>
+    </div>
+    <div class="cta rv" style="transition-delay:1.1s">
+      <button class="btn next" type="button">Dalej <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+  </section>
+
+  <!-- PRAWDA -->
+  <section class="scene">
+    <div class="lines">
+      <p class="rv" style="transition-delay:.1s">Wiem, jak to jest miesiącami nie móc wstać z łóżka.</p>
+      <p class="rv" style="transition-delay:.4s">Zasypiać w ubraniach. Jeść, żeby nie czuć.</p>
+      <p class="rv" style="transition-delay:.7s">Mieć dołki, o których nie mówi się głośno. I myśli, których sam się bałem.</p>
+      <p class="rv" style="transition-delay:1s">Przeżywać dzień po dniu, zamiast <em>żyć.</em></p>
+      <p class="rv big" style="transition-delay:1.35s">Wyszedłem z tego. Nie od razu - ale wyszedłem.</p>
+    </div>
+    <div class="cta rv" style="transition-delay:1.65s">
+      <button class="btn next" type="button">I co się zmieniło? <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+  </section>
+
+  <!-- TEASER -->
+  <section class="scene">
+    <div class="eyebrow rv">Wkrótce</div>
+    <h2 class="rv" style="transition-delay:.1s">Zbieram wszystko, co pomogło mi <em>odmienić</em> głowę. I życie.</h2>
+    <p class="lead rv" style="transition-delay:.35s">Bez ściemy, bez „10 kroków do miliona”. Moja historia, moje błędy i to, co naprawdę działa.
+      <strong>Każdy odczyta to po swojemu - i dobrze.</strong></p>
+    <p class="lead rv" style="transition-delay:.55s">Odpowiedz szczerze na kilka pytań. Zostaw Instagram. Jak to wyjdzie - <strong>napiszę do ciebie osobiście.</strong></p>
+    <div class="cta rv" style="transition-delay:.75s">
+      <button class="btn shine next" type="button"><span class="ring"></span><span class="ring r2"></span>Zaczynam <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <span class="hint">6 pytań - ok. minuty</span>
+    </div>
+  </section>
+
+  <!-- PYTANIA (generowane w JS) -->
+  <div id="qs"></div>
+
+  <!-- IG -->
+  <section class="scene" id="s-ig">
+    <div class="q-num rv">Ostatni krok</div>
+    <div class="q-title rv" style="transition-delay:.1s">Gdzie mam do ciebie <em>napisać?</em></div>
+    <p class="q-sub rv" style="transition-delay:.2s">Twój Instagram. Żadnych maili, żadnych numerów, żadnego spamu.</p>
+    <form id="form" novalidate autocomplete="off">
+      <div class="field rv" style="transition-delay:.3s">
+        <span class="at">@</span>
+        <input id="ig" name="ig" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="twoj.instagram" maxlength="80">
+      </div>
+      <div class="err" id="err" role="alert" aria-live="polite"></div>
+      <div class="field rv" style="transition-delay:.4s;margin-top:6px">
+        <textarea id="msg" name="msg" maxlength="400" placeholder="Jedno zdanie do mnie - z czym walczysz? (opcjonalnie)"></textarea>
+      </div>
+      <label class="consent rv" style="transition-delay:.45s"><input type="checkbox" id="ok"><span>Zgadzam się, żeby @janecxek zapisał mój nick i odpowiedzi i napisał do mnie na Instagramie w sprawie projektu. Mogę w każdej chwili poprosić o usunięcie - wystarczy wiadomość.</span></label>
+      <input class="hp" type="text" name="website" id="hp" tabindex="-1" autocomplete="off">
+      <div class="cta rv" style="transition-delay:.5s;margin-top:26px">
+        <button class="btn shine" id="submit" type="submit"><span class="ring"></span><span class="ring r2"></span><span>Zapisz mnie</span><span class="spin"></span><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+      <p class="small rv" style="transition-delay:.6s">Twoje odpowiedzi widzę tylko ja. Nikomu ich nie przekażę, a po starcie projektu usuwam je z listy.</p>
+    </form>
+  </section>
+
+  <!-- WYNIK -->
+  <section class="scene" id="s-done">
+    <div class="eyebrow rv">Jesteś na liście</div>
+    <h2 class="rv" style="transition-delay:.1s">Dzięki, <em id="nick">ty</em>.</h2>
+    <div class="result-card rv" style="transition-delay:.35s">
+      <div class="tag">Co widzę w twoich odpowiedziach</div>
+      <p id="r-text"></p>
+    </div>
+    <p class="lead rv" style="transition-delay:.6s">Nie musisz nic więcej robić. Jak będzie gotowe - odezwę się pierwszy. Do tego czasu: <strong>zrób dziś jedną małą rzecz dla siebie.</strong></p>
+    <div class="sign serif rv" style="transition-delay:.85s">- @janecxek</div>
+    <div class="cta rv" style="transition-delay:1s">
+      <a class="btn" href="https://www.tiktok.com/@janecxek" target="_blank" rel="noopener">Wracam na TikToka <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot" id="foot">Jeśli jest naprawdę źle - nie zostawaj z tym sam. Telefon zaufania: <a href="tel:116123">116 123</a> · dla młodzieży: <a href="tel:116111">116 111</a></footer>
+
+<script>
+/* =========================================================
+   KONFIG - zapis zgłoszeń do Supabase (instrukcja: supabase-instrukcja.md)
+   Supabase -> Project Settings -> API: skopiuj Project URL i klucz "anon"/"publishable".
+   Ten klucz może być publiczny - tabela pozwala tylko DOPISYWAĆ, nikt nic nie odczyta.
+   ========================================================= */
+const SUPABASE_URL = "https://jrzsztzibklazeagatyl.supabase.co"; // np. "https://abcdefgh.supabase.co"
+const SUPABASE_KEY = "sb_publishable_6x-UScZ_gINm4veC45fraA_U86V0eKp"; // np. "sb_publishable_..." albo długi klucz "eyJ..."
+
+/* ---------- pytania ----------
+   multi: można zaznaczyć kilka + wpisać własną odpowiedź
+   scale: skala 1-10, klik = dalej                                  */
+const QUESTIONS = [
+  { id:"dzien", t:"Jak wygląda twój dzień - <em>szczerze?</em>", s:"Zaznacz wszystko, co pasuje. Nikt poza mną tego nie zobaczy.",
+    o:["Budzę się bez energii, scrolluję do nocy i zasypiam z telefonem w ręce",
+       "Robię tylko to, co muszę. Dla siebie - nic",
+       "Wszystko odkładam na jutro. Jutro nigdy nie przychodzi",
+       "Udaję przed wszystkimi, że jest dobrze. Nie jest"] },
+  { id:"zzera", t:"Co cię najbardziej <em>zżera</em> od środka?",
+    o:["Że marnuję najlepsze lata swojego życia",
+       "Że wszyscy idą do przodu, a ja stoję w miejscu",
+       "Że nie potrafię dotrzymać słowa nawet samemu sobie",
+       "Że nie wiem, kim jestem i czego chcę"] },
+  { id:"ucieczka", t:"Co robisz, kiedy robi się <em>ciężko?</em>",
+    o:["Uciekam w telefon, gry, seriale - byle nie myśleć",
+       "Jem, piję, palę - cokolwiek, żeby nie czuć",
+       "Zamykam się w sobie i nikomu nic nie mówię",
+       "Zaciskam zęby i ciągnę dalej, aż pęknę"] },
+  { id:"zmiana", t:"Co chcesz zmienić <em>najpierw?</em>",
+    o:["Głowę - przestać sabotować samego siebie",
+       "Ciało i nawyki - wstawać, ruszać się, dbać o siebie",
+       "Ludzi wokół - odciąć tych, którzy ciągną mnie w dół",
+       "Kierunek - wiedzieć, po co w ogóle wstaję rano"] },
+  { id:"zarok", t:"Jeśli nic nie zmienisz - <em>gdzie jesteś</em> za rok?", single:true,
+    o:["Dokładnie tu, gdzie teraz","Jeszcze niżej niż teraz","Nie chcę nawet o tym myśleć","Nie ma opcji - zmieniam to"] },
+  { id:"gotowosc", t:"Na ile jesteś gotowy coś zmienić - <em>naprawdę?</em>", scale:true }
+];
+
+const arrow='<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const qsWrap=document.getElementById("qs"), N=QUESTIONS.length;
+QUESTIONS.forEach((q,i)=>{
+  const s=document.createElement("section");
+  s.className="scene"; s.dataset.q=q.id;
+  if(q.single) s.dataset.single="1";
+  let h=`<div class="q-num rv">${String(i+1).padStart(2,"0")} / ${String(N).padStart(2,"0")}${q.scale||q.single?"":"<span>· możesz kilka</span>"}</div>
+    <div class="q-title rv" style="transition-delay:.08s">${q.t}</div>`+(q.s?`<p class="q-sub rv" style="transition-delay:.15s">${q.s}</p>`:"");
+  if(q.scale){
+    h+=`<div class="scale rv" style="transition-delay:.22s"><div class="scale-row">`+
+      Array.from({length:10},(_,k)=>`<button type="button" data-v="${k+1}">${k+1}</button>`).join("")+
+      `</div><div class="scale-lab"><span>tylko patrzę</span><span>jestem gotowy, serio</span></div></div>`;
+  } else {
+    h+=`<div class="opts">`+q.o.map(o=>`<button type="button" class="opt" data-v="${o}">${o}</button>`).join("")+
+       `<label class="opt-other"><input type="text" maxlength="200" placeholder="Albo napisz własnymi słowami..." enterkeyhint="next"></label></div>`+
+       `<div class="q-foot rv" style="transition-delay:.5s"><span class="hint">${q.single?"wybierz jedną albo wpisz swoją":"zaznacz jedno lub więcej"}</span>`+
+       `<button class="btn qnext" type="button" disabled>Dalej ${arrow}</button></div>`;
+  }
+  s.innerHTML=h;
+  qsWrap.parentNode.insertBefore(s,qsWrap);
+});
+qsWrap.remove();
+
+/* analityka - wysyła zdarzenia do Umami, jeśli skrypt jest wklejony w <head> */
+function track(name){try{if(window.umami)umami.track(name)}catch(_){}}
+
+/* ---------- nawigacja ---------- */
+const scenes=[...document.querySelectorAll(".scene")];
+const IG_I=scenes.indexOf(document.getElementById("s-ig"));
+const prog=document.getElementById("prog"), backBtn=document.getElementById("back"), foot=document.getElementById("foot");
+const answers={}; let cur=0, locked=false;
+
+function go(n,dir=1){
+  if(locked||n===cur||n<0||n>=scenes.length) return;
+  locked=true;
+  const a=scenes[cur], b=scenes[n];
+  if(document.activeElement&&a.contains(document.activeElement)) document.activeElement.blur();
+  a.classList.remove("on"); a.classList.add(dir>0?"out":"back-out");
+  setTimeout(()=>a.classList.remove("out","back-out"),900);
+  b.classList.add("on"); b.scrollTop=0;
+  cur=n;
+  prog.style.width=(n/(scenes.length-1)*100)+"%";
+  backBtn.classList.toggle("on",n>0&&n<scenes.length-1);
+  const showFoot=(n===0||n===2);
+  foot.style.opacity=showFoot?1:0; foot.style.pointerEvents=showFoot?"auto":"none"; document.body.classList.toggle("foot-on",showFoot);
+  sky.set(n,scenes.length);
+  track("krok-"+String(n).padStart(2,"0"));
+  if(n===IG_I) setTimeout(()=>document.getElementById("ig").focus({preventScroll:true}),900);
+  setTimeout(()=>locked=false,650);
+}
+document.querySelectorAll(".next").forEach(b=>b.addEventListener("click",()=>go(cur+1)));
+backBtn.addEventListener("click",()=>go(cur-1,-1));
+
+/* ---------- logika pytań ---------- */
+function collect(s){
+  const picked=[...s.querySelectorAll(".opt.sel")].map(b=>b.dataset.v);
+  const other=s.querySelector(".opt-other input");
+  const txt=other?other.value.trim():"";
+  if(txt) picked.push("Własne: "+txt);
+  return picked;
+}
+function refresh(s){
+  const has=collect(s).length>0;
+  const nb=s.querySelector(".qnext"); if(nb) nb.disabled=!has;
+  const oo=s.querySelector(".opt-other"); if(oo) oo.classList.toggle("filled",!!oo.querySelector("input").value.trim());
+}
+function commit(s){
+  const v=collect(s); if(!v.length) return;
+  answers[s.dataset.q]=v.join(" | ");
+  go(cur+1);
+}
+scenes.forEach(s=>{
+  if(!s.dataset.q) return;
+  const single=!!s.dataset.single;
+  s.addEventListener("click",e=>{
+    if(locked) return;
+    const sc=e.target.closest(".scale button");
+    if(sc){
+      s.querySelectorAll(".scale button").forEach(x=>{x.classList.toggle("lit",+x.dataset.v<=+sc.dataset.v);x.classList.toggle("sel",x===sc)});
+      answers[s.dataset.q]=sc.dataset.v;
+      setTimeout(()=>go(cur+1),380); return;
+    }
+    const o=e.target.closest(".opt");
+    if(o){
+      if(single){
+        s.querySelectorAll(".opt.sel").forEach(x=>x!==o&&x.classList.remove("sel"));
+        const inp=s.querySelector(".opt-other input"); if(inp) inp.value="";
+      }
+      o.classList.toggle("sel");
+      if(navigator.vibrate) try{navigator.vibrate(8)}catch(_){}
+      refresh(s);
+      return;
+    }
+    if(e.target.closest(".qnext")) commit(s);
+  });
+  const inp=s.querySelector(".opt-other input");
+  if(inp){
+    inp.addEventListener("input",()=>{
+      if(single&&inp.value.trim()) s.querySelectorAll(".opt.sel").forEach(x=>x.classList.remove("sel"));
+      refresh(s);
+    });
+    inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();commit(s);}});
+  }
+});
+
+/* klawiatura */
+document.addEventListener("keydown",e=>{
+  if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA") return;
+  const s=scenes[cur];
+  if(!s.dataset.q){ if(e.key==="Enter"&&cur<IG_I) go(cur+1); return; }
+  const k="1234".indexOf(e.key), opts=s.querySelectorAll(".opt");
+  if(opts.length&&k>-1&&opts[k]) opts[k].click();
+  if(!opts.length&&/^[0-9]$/.test(e.key)){const v=e.key==="0"?10:+e.key; s.querySelector(`.scale [data-v="${v}"]`)?.click();}
+  if(e.key==="Enter") commit(s);
+});
+
+/* ---------- formularz ---------- */
+function cleanIG(v){
+  v=(v||"").trim();
+  const m=v.match(/instagram\.com\/([A-Za-z0-9._]+)/i); if(m) v=m[1];
+  return v.replace(/^@+/,"").replace(/\/+$/,"").toLowerCase();
+}
+const form=document.getElementById("form"), igIn=document.getElementById("ig"), err=document.getElementById("err"), sub=document.getElementById("submit");
+igIn.addEventListener("input",()=>{err.textContent=""});
+igIn.addEventListener("blur",()=>{if(igIn.value)igIn.value=cleanIG(igIn.value)});
+form.addEventListener("submit",async e=>{
+  e.preventDefault();
+  const ig=cleanIG(igIn.value);
+  if(!/^[a-z0-9._]{1,30}$/.test(ig)||/^\.|\.$|\.\./.test(ig)){err.textContent="Wpisz poprawną nazwę z Instagrama (litery, cyfry, kropki, podkreślniki).";igIn.focus();return;}
+  if(!document.getElementById("ok").checked){err.textContent="Zaznacz zgodę - bez niej nie mogę do ciebie napisać.";return;}
+  if(document.getElementById("hp").value) return;
+  sub.classList.add("load"); sub.disabled=true;
+  const params=new URLSearchParams(location.search);
+  let ref="direct"; try{if(document.referrer) ref=new URL(document.referrer).hostname}catch(_){}
+  const payload={
+    instagram:"@"+ig, ...answers,
+    wiadomosc:document.getElementById("msg").value.trim(),
+    zrodlo:params.get("utm_source")||params.get("src")||ref,
+    urzadzenie:/Mobi|Android|iPhone/i.test(navigator.userAgent)?"mobile":"desktop"
+  };
+  payload.gotowosc=parseInt(payload.gotowosc,10)||null;
+  ["dzien","zzera","ucieczka","zmiana","zarok","wiadomosc","zrodlo"].forEach(k=>{if(payload[k]!=null)payload[k]=String(payload[k]).slice(0,1200)});
+  try{
+    if(SUPABASE_URL&&SUPABASE_KEY){
+      const h={"apikey":SUPABASE_KEY,"Content-Type":"application/json","Prefer":"return=minimal"};
+      if(!SUPABASE_KEY.startsWith("sb_")) h.Authorization="Bearer "+SUPABASE_KEY;
+      const r=await fetch(SUPABASE_URL.replace(/\/$/,"")+"/rest/v1/leady",{method:"POST",headers:h,body:JSON.stringify(payload)});
+      if(!r.ok) console.warn("[lead] zapis nieudany",r.status,await r.text());
+    } else { console.log("[lead - brak konfiguracji Supabase]",JSON.stringify(payload)); await new Promise(r=>setTimeout(r,600)); }
+  }catch(_){}
+  track("zapis");
+  showResult(ig);
+});
+
+/* ---------- personalizowany wynik ---------- */
+const first=(key,map)=>{const v=(answers[key]||"").split(" | ");for(const x of v) if(map[x]) return map[x];return null;};
+function showResult(ig){
+  document.getElementById("nick").textContent="@"+ig;
+  const g=+answers.gotowosc||5;
+  const a=first("dzien",{
+    "Budzę się bez energii, scrolluję do nocy i zasypiam z telefonem w ręce":"Scroll to znieczulenie. Nie odpoczywasz - uciekasz. Dobrze, że to widzisz, bo większość nie widzi tego latami.",
+    "Robię tylko to, co muszę. Dla siebie - nic":"Żyjesz dla obowiązków, a nie dla siebie. To prosta droga do wypalenia - i da się z niej zawrócić.",
+    "Wszystko odkładam na jutro. Jutro nigdy nie przychodzi":"Jutro to najwygodniejsza wymówka, jaką wymyślił człowiek. Zmiana zaczyna się od jednej rzeczy zrobionej dziś.",
+    "Udaję przed wszystkimi, że jest dobrze. Nie jest":"Udawanie zjada więcej energii niż cokolwiek innego. Przyznanie się przed sobą to już pierwszy krok - właśnie go zrobiłeś."
+  })||"Napisałeś to własnymi słowami - i to jest najważniejsze. Szczerość wobec siebie to punkt startu.";
+  const b=first("zzera",{
+    "Że marnuję najlepsze lata swojego życia":"Czas ucieka tylko wtedy, kiedy stoisz. Ruszysz - zacznie pracować dla ciebie.",
+    "Że wszyscy idą do przodu, a ja stoję w miejscu":"Porównujesz swoje zaplecze z czyjąś wystawą. O tym będzie sporo.",
+    "Że nie potrafię dotrzymać słowa nawet samemu sobie":"Zaufanie do siebie buduje się małymi obietnicami. Da się je odbudować - pokażę jak.",
+    "Że nie wiem, kim jestem i czego chcę":"Nie musisz wiedzieć wszystkiego od razu. Na start wystarczy kierunek."
+  })||"";
+  const tail = g>=8 ? ` A skoro dajesz sobie ${g}/10 - jesteś dokładnie osobą, dla której to robię.`
+             : g>=5 ? ` ${g}/10 to uczciwa odpowiedź. Nie musisz być gotowy w 100%, żeby zacząć.`
+             : ` ${g}/10? Spoko. Ciekawość to też początek.`;
+  document.getElementById("r-text").textContent=a+" "+b+tail;
+  go(scenes.length-1);
+}
+
+/* =========================================================
+   "PROGRAM" - deszcz z myśli, które trzymają cię w miejscu.
+   Im dalej w stronę, tym słabszy. Na końcu znika.
+   ========================================================= */
+const sky=(()=>{
+  const c=document.getElementById("sky"), x=c.getContext("2d");
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const mobile=matchMedia("(pointer:coarse)").matches;
+  const PHRASES=["JESZCZE 5 MINUT","OD JUTRA","CO POWIEDZĄ INNI","SCROLLUJ DALEJ","UDAWAJ ŻE OK","NIE DASZ RADY",
+    "NIE TERAZ","INNI MAJĄ LEPIEJ","ZOSTAŃ W ŁÓŻKU","TO NIE DLA CIEBIE","PO CO SIĘ STARAĆ","JUTRO ZACZNĘ","NIKT NIE ZAUWAŻY","TAK MIAŁO BYĆ"];
+  const NOISE="01ĄĆĘŁŃÓŚŹŻ<>/=+*";
+  const FS=mobile?12:13, STEP=FS*1.15, GAP=FS*(mobile?2.6:3.2), FPS=mobile?20:24;
+  let W,H,dpr,cols=[],level=1,target=1,run=true,last=0,acc=0;
+  function mkCol(i){return{x:i*GAP+GAP/2,y:-Math.random()*H*1.5,v:(.25+Math.random()*.35),
+    p:PHRASES[(Math.random()*PHRASES.length)|0],k:0,r:Math.random(),on:true};}
+  function init(){
+    dpr=Math.min(window.devicePixelRatio||1,mobile?1.5:2);
+    W=innerWidth;H=innerHeight;c.width=W*dpr;c.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0);
+    x.clearRect(0,0,W,H);
+    const n=Math.ceil(W/GAP); cols=Array.from({length:n},(_,i)=>mkCol(i));
+    x.font=`500 ${FS}px "JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace`;
+    x.textAlign="center";
+  }
+  function step(){
+    level+=(target-level)*.04;
+    // wygaszanie śladów
+    x.globalCompositeOperation="destination-out"; x.fillStyle=`rgba(0,0,0,${mobile?.2:.17})`; x.fillRect(0,0,W,H); x.globalCompositeOperation="source-over";
+    for(const col of cols){
+      const active=col.r<level*.5;
+      if(!col.on){ if(active){col.on=true;col.y=-STEP*(2+Math.random()*10);} else continue; }
+      const ch = Math.random()<.12 ? NOISE[(Math.random()*NOISE.length)|0] : (col.p[col.k%col.p.length]||" ");
+      const yy=col.y;
+      // głowa jaśniejsza, reszta przygaszona - tekst strony zostaje czytelny
+      x.fillStyle=`rgba(200,218,255,${.4*Math.min(1,level+.15)})`; x.fillText(ch,col.x,yy);
+      x.fillStyle=`rgba(79,124,255,${.16*Math.min(1,level+.15)})`; x.fillText(col.p[(col.k+col.p.length-1)%col.p.length]||" ",col.x,yy-STEP);
+      col.y+=STEP*col.v; col.k++;
+      if(col.y>H+STEP*2){
+        if(active){col.y=-STEP*Math.random()*8;col.p=PHRASES[(Math.random()*PHRASES.length)|0];col.k=0;col.v=.25+Math.random()*.35;}
+        else col.on=false;
+      }
+    }
+  }
+  function frame(t){
+    if(!run) return;
+    acc+=t-last; last=t;
+    if(acc>=1000/FPS){acc=0;step();}
+    requestAnimationFrame(frame);
+  }
+  function drawStatic(){
+    x.clearRect(0,0,W,H);
+    for(const col of cols){ if(col.r>level*.5) continue; const y0=Math.random()*H;
+      for(let i=0;i<col.p.length;i++){x.fillStyle=`rgba(79,124,255,${.25*(1-i/col.p.length)})`;x.fillText(col.p[i],col.x,y0-i*STEP);} }
+  }
+  init();
+  let lw=innerWidth;
+  addEventListener("resize",()=>{if(Math.abs(innerWidth-lw)<2&&Math.abs(innerHeight-H)<160)return;lw=innerWidth;init();if(reduce)drawStatic();},{passive:true});
+  document.addEventListener("visibilitychange",()=>{run=!document.hidden;if(run&&!reduce){last=performance.now();requestAnimationFrame(frame);}});
+  if(reduce) drawStatic(); else requestAnimationFrame(t=>{last=t;frame(t)});
+  return {
+    // 1 = pełny "program", 0 = wolność
+    set(n,total){ const p=n/(total-1); target = n>=total-1 ? 0 : Math.max(.12, 1-p*1.05); if(reduce){level=target;drawStatic();} },
+    boost(){}
+  };
+})();
+
+const stars=(()=>{
+  const c=document.getElementById("stars"), x=c.getContext("2d");
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const mobile=matchMedia("(pointer:coarse)").matches;
+  let W,H,dpr,stars=[],speed=1,run=true,last=0;
+  function init(){
+    dpr=Math.min(window.devicePixelRatio||1,mobile?1.5:2);
+    W=innerWidth;H=innerHeight;c.width=W*dpr;c.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0);
+    const n=Math.min(mobile?55:100,Math.round(W*H/(mobile?7000:13000)));
+    stars=Array.from({length:n},()=>{const z=Math.random();return{
+      x:Math.random()*W,y:Math.random()*H,z,r:.25+z*.8,a:.15+Math.random()*.45,
+      tw:Math.random()*Math.PI*2,ts:.4+Math.random()*1.4,c:Math.random()<.25?"#a9bfff":"#e6ebff"}});
+  }
+  function frame(t){
+    if(!run) return;
+    const dt=Math.min((t-last)/16.67,3); last=t;
+    speed+=(1-speed)*.03;
+    x.clearRect(0,0,W,H);
+    for(const s of stars){
+      s.y-=(.02+s.z*.06)*speed*dt;
+      if(s.y<-4){s.y=H+4;s.x=Math.random()*W;}
+      s.tw+=.02*s.ts*dt;
+      const px=s.x, py=s.y, al=s.a*(.6+.4*Math.sin(s.tw));
+      x.globalAlpha=al; x.fillStyle=s.c;
+      x.beginPath();x.arc(px,py,s.r,0,6.283);x.fill();
+    }
+    x.globalAlpha=1;
+    requestAnimationFrame(frame);
+  }
+  function drawStatic(){x.clearRect(0,0,W,H);for(const s of stars){x.globalAlpha=s.a;x.fillStyle=s.c;x.beginPath();x.arc(s.x,s.y,s.r,0,6.283);x.fill();}}
+  init();
+  let lw=innerWidth;addEventListener("resize",()=>{if(Math.abs(innerWidth-lw)<2&&Math.abs(innerHeight-H)<160)return;lw=innerWidth;init();if(reduce)drawStatic();},{passive:true});
+  document.addEventListener("visibilitychange",()=>{run=!document.hidden;if(run&&!reduce){last=performance.now();requestAnimationFrame(frame);}});
+  if(reduce) drawStatic(); else requestAnimationFrame(t=>{last=t;frame(t)});
+  return {boost(){speed=reduce?1:4;}};
+})();
+
+requestAnimationFrame(()=>scenes[0].classList.add("on"));
+</script>
+</body>
+</html>
